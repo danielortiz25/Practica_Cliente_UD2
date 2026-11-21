@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestor de pedidos de material</title>
+  <!-- Evita la petición automática a /favicon.ico (error 404 en consola) -->
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/estilos.css">
+  <!-- logica.js primero: app.js usa sus funciones y su clase -->
+  <script src="js/logica.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Gestor de pedidos de material</h1>
+    <p>Catálogo de material informático y de oficina. Los precios son finales (IVA incluido).</p>
+  </header>
+
+  <main>
+    <!-- ===== CATÁLOGO ===== -->
+    <section id="catalogo" aria-labelledby="titulo-catalogo">
+      <h2 id="titulo-catalogo">Catálogo</h2>
+
+      <div class="filtros">
+        <label for="buscar">Buscar por nombre</label>
+        <input type="search" id="buscar" name="buscar" maxlength="50" placeholder="Ej.: ratón">
+
+        <label for="filtro-categoria">Categoría</label>
+        <select id="filtro-categoria" name="filtro-categoria">
+          <option value="todas">Todas</option>
+          <option value="perifericos">Periféricos</option>
+          <option value="almacenamiento">Almacenamiento</option>
+          <option value="oficina">Oficina</option>
+        </select>
+      </div>
+
+      <p id="catalogo-vacio" class="estado-vacio" hidden>No hay productos que coincidan con la búsqueda.</p>
+      <div id="lista-productos" class="lista-productos"></div>
+    </section>
+
+    <!-- ===== CARRITO ===== -->
+    <section id="carrito" aria-labelledby="titulo-carrito">
+      <h2 id="titulo-carrito">Carrito</h2>
+
+      <p id="carrito-vacio" class="estado-vacio">El carrito está vacío. Añade productos desde el catálogo.</p>
+
+      <table id="tabla-carrito" hidden>
+        <thead>
+          <tr>
+            <th scope="col">Producto</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Precio unitario</th>
+            <th scope="col">Subtotal</th>
+            <th scope="col"><span class="oculto">Acciones</span></th>
+          </tr>
+        </thead>
+        <!-- Contenedor común para la delegación de eventos de "Retirar" -->
+        <tbody id="lineas-carrito"></tbody>
+      </table>
+
+      <dl class="totales">
+        <dt>Total de unidades</dt><dd id="total-unidades">0</dd>
+        <dt>Subtotal</dt><dd id="total-subtotal">0.00 €</dd>
+        <dt>Descuento</dt><dd id="total-descuento">0.00 €</dd>
+        <dt>Total</dt><dd id="total-final">0.00 €</dd>
+      </dl>
+      <p class="nota">Descuento del 10 % en pedidos con subtotal igual o superior a 100 €.</p>
+    </section>
+
+    <!-- ===== FORMULARIO DE PEDIDO ===== -->
+    <section id="pedido" aria-labelledby="titulo-pedido">
+      <h2 id="titulo-pedido">Confirmar pedido</h2>
+
+      <form id="form-pedido" novalidate>
+        <div class="campo">
+          <label for="nombre">Nombre y apellidos</label>
+          <input type="text" id="nombre" name="nombre" required minlength="2" maxlength="60"
+                 autocomplete="name" aria-describedby="error-nombre">
+          <span id="error-nombre" class="error" aria-live="polite"></span>
+        </div>
+
+        <div class="campo">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" required maxlength="100"
+                 autocomplete="email" aria-describedby="error-email">
+          <span id="error-email" class="error" aria-live="polite"></span>
+        </div>
+
+        <fieldset>
+          <legend>Modalidad de entrega</legend>
+          <label><input type="radio" name="entrega" value="recogida" required aria-describedby="error-entrega"> Recogida en tienda</label>
+          <label><input type="radio" name="entrega" value="envio" required> Envío a domicilio</label>
+          <span id="error-entrega" class="error" aria-live="polite"></span>
+        </fieldset>
+
+        <fieldset id="datos-envio" hidden>
+          <legend>Datos de envío</legend>
+          <div class="campo">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" name="direccion" minlength="5" maxlength="100"
+                   autocomplete="street-address" aria-describedby="error-direccion">
+            <span id="error-direccion" class="error" aria-live="polite"></span>
+          </div>
+          <div class="campo">
+            <label for="cp">Código postal</label>
+            <input type="text" id="cp" name="cp" inputmode="numeric" maxlength="5"
+                   autocomplete="postal-code" aria-describedby="error-cp">
+            <span id="error-cp" class="error" aria-live="polite"></span>
+          </div>
+        </fieldset>
+
+        <div class="campo">
+          <label for="observaciones">Observaciones (opcional)</label>
+          <textarea id="observaciones" name="observaciones" rows="3" maxlength="200"
+                    aria-describedby="contador-observaciones error-observaciones"></textarea>
+          <span id="contador-observaciones" class="contador">0 / 200</span>
+          <span id="error-observaciones" class="error" aria-live="polite"></span>
+        </div>
+
+        <div class="campo">
+          <label>
+            <input type="checkbox" id="acepto" name="acepto" required aria-describedby="error-acepto">
+            Confirmo que los datos del pedido son correctos
+          </label>
+          <span id="error-acepto" class="error" aria-live="polite"></span>
+        </div>
+
+        <button type="submit" id="boton-confirmar">Confirmar pedido</button>
+      </form>
+
+      <p id="mensaje-pedido" class="mensaje" aria-live="polite"></p>
+    </section>
+
+    <!-- ===== HISTORIAL ===== -->
+    <section id="historial" aria-labelledby="titulo-historial">
+      <h2 id="titulo-historial">Historial de pedidos</h2>
+
+      <label for="filtro-historial">Mostrar</label>
+      <select id="filtro-historial" name="filtro-historial">
+        <option value="todos">Todos</option>
+        <option value="recogida">Recogida</option>
+        <option value="envio">Envío</option>
+      </select>
+
+      <p id="resumen-historial" class="resumen"></p>
+      <p id="historial-vacio" class="estado-vacio">Todavía no hay pedidos.</p>
+      <div id="lista-pedidos"></div>
+
+      <button type="button" id="boton-exportar">Exportar historial</button>
+      <label for="json-exportado" class="oculto">Historial en formato JSON</label>
+      <textarea id="json-exportado" rows="12" readonly hidden></textarea>
+    </section>
+  </main>
+</body>
+</html>
