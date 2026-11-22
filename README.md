@@ -1,5 +1,7 @@
 # Gestor de pedidos de material
 
+Chat con IA https://claude.ai/share/90be7923-b66a-493d-af94-372c9912896b
+
 Práctica de integración de DWEC (sesiones 8–13). Catálogo, carrito, formulario de pedido e historial con exportación JSON. Todo funciona en el navegador con HTML, CSS y JavaScript, sin frameworks ni persistencia.
 
 ## Estructura
